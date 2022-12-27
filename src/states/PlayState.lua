@@ -70,11 +70,12 @@ function PlayState:update(dt)
 
     for key, ball in pairs(self.balls) do
         if ball:collides(self.powerUp) and self.powerUp.inPlay then
-            reactColliding(ball, self.powerUp)
+            
+            brickCollision(ball, self.powerUp)
+            
             self.powerUp:hit()
 
-            self.balls[2] = Ball()
-            self.balls[3] = Ball()
+            
         end
     end
 
@@ -85,7 +86,7 @@ function PlayState:update(dt)
         if brick.inPlay and ball ~= nil then
 
             -- change velocity
-            reactColliding(ball, brick)
+            brickCollision(ball, brick)
             -- add to score
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
@@ -231,7 +232,7 @@ function isBrickCollision(brick, balls)
     return nil
 end
 
-function reactColliding(ball, brick)
+function brickCollision(ball, brick)
     if ball.x + 2 < brick.x and ball.dx > 0 then
                 
         -- flip x velocity and reset position outside of brick
