@@ -68,14 +68,25 @@ function PlayState:update(dt)
             ball:giveVelocity()
     end
 
+    
     for key, ball in pairs(self.balls) do
         if ball:collides(self.powerUp) and self.powerUp.inPlay then
-            
             brickCollision(ball, self.powerUp)
-            
             self.powerUp:hit()
+            self.balls =  {
+                [1] = Ball(ball.skin),
+                [2] = Ball(math.random(3)),
+                [3] = Ball(math.random(3))
+            }
 
+            for key, ball in pairs(self.balls) do 
+                ball.x = self.powerUp.x
+                ball.y = self.powerUp.y
+            end
             
+            self.powerUp.inPlay = false
+
+            break
         end
     end
 
@@ -84,8 +95,8 @@ function PlayState:update(dt)
 
         ball = isBrickCollision(brick, self.balls)
         if brick.inPlay and ball ~= nil then
-
             -- change velocity
+
             brickCollision(ball, brick)
             -- add to score
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
@@ -123,11 +134,14 @@ end
         if ball.y >= VIRTUAL_HEIGHT then
             gSounds['hurt']:play()
             
+            
             -- checking if we still have balls left
-            if #self.balls == 0 then
+            if #self.balls == 1 then
                 self.health = self.health - 1
             else
-                ball.inPlay = false
+                
+                table.remove(self.balls, key)
+                break
             end
 
             if self.health == 0 then
@@ -224,9 +238,11 @@ end
 
 function isBrickCollision(brick, balls)
     for key, ball in pairs(balls) do
+
         if ball:collides(brick) then
             return ball
         end
+        
     end
 
     return nil
