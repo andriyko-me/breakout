@@ -68,11 +68,24 @@ function PlayState:update(dt)
             ball:giveVelocity()
     end
 
+    for key, ball in pairs(self.balls) do
+        if ball:collides(self.powerUp) and self.powerUp.inPlay then
+            reactColliding(ball, self.powerUp)
+            self.powerUp:hit()
+
+            self.balls[2] = Ball()
+            self.balls[3] = Ball()
+        end
+    end
+
     -- detect collision across all bricks with the ball
     for k, brick in pairs(self.bricks) do
 
         ball = isBrickCollision(brick, self.balls)
         if brick.inPlay and ball ~= nil then
+
+            -- change velocity
+            reactColliding(ball, brick)
             -- add to score
             self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
@@ -93,46 +106,6 @@ function PlayState:update(dt)
                 })
             end
 
-            --
-            -- collision code for bricks
-            --
-            -- we check to see if the opposite side of our velocity is outside of the brick;
-            -- if it is, we trigger a collision on that side. else we're within the X + width of
-            -- the brick and should check to see if the top or bottom edge is outside of the brick,
-            -- colliding on the top or bottom accordingly 
-            --
-
-            -- left edge; only check if we're moving right, and offset the check by a couple of pixels
-            -- so that flush corner hits register as Y flips, not X flips
-            if ball.x + 2 < brick.x and ball.dx > 0 then
-                
-                -- flip x velocity and reset position outside of brick
-                ball.dx = -ball.dx
-                ball.x = brick.x - 8
-            
-            -- right edge; only check if we're moving left, , and offset the check by a couple of pixels
-            -- so that flush corner hits register as Y flips, not X flips
-            elseif ball.x + 6 > brick.x + brick.width and ball.dx < 0 then
-                
-                -- flip x velocity and reset position outside of brick
-                ball.dx = -ball.dx
-                ball.x = brick.x + 32
-            
-            -- top edge if no X collisions, always check
-            elseif ball.y < brick.y then
-                
-                -- flip y velocity and reset position outside of brick
-                ball.dy = -ball.dy
-                ball.y = brick.y - 8
-            
-            -- bottom edge if no X collisions or top collision, last possibility
-            else
-                
-                -- flip y velocity and reset position outside of brick
-                ball.dy = -ball.dy
-                ball.y = brick.y + 16
-            end
-
             -- slightly scale the y velocity to speed up the game, capping at +- 150
             if math.abs(ball.dy) < 150 then
                 ball.dy = ball.dy * 1.02
@@ -148,7 +121,7 @@ end
     for key, ball in pairs(self.balls) do
         if ball.y >= VIRTUAL_HEIGHT then
             gSounds['hurt']:play()
-
+            
             -- checking if we still have balls left
             if #self.balls == 0 then
                 self.health = self.health - 1
@@ -171,7 +144,7 @@ end
                     highScores = self.highScores,
                     level = self.level
                 })
-                print('here')
+                
             end
         end
     end
@@ -256,4 +229,40 @@ function isBrickCollision(brick, balls)
     end
 
     return nil
+end
+
+function reactColliding(ball, brick)
+    if ball.x + 2 < brick.x and ball.dx > 0 then
+                
+        -- flip x velocity and reset position outside of brick
+        ball.dx = -ball.dx
+        ball.x = brick.x - 8
+    
+    -- right edge; only check if we're moving left, , and offset the check by a couple of pixels
+    -- so that flush corner hits register as Y flips, not X flips
+    elseif ball.x + 6 > brick.x + brick.width and ball.dx < 0 then
+        
+        -- flip x velocity and reset position outside of brick
+        ball.dx = -ball.dx
+        ball.x = brick.x + 32
+    
+    -- top edge if no X collisions, always check
+    elseif ball.y < brick.y then
+        
+        -- flip y velocity and reset position outside of brick
+        ball.dy = -ball.dy
+        ball.y = brick.y - 8
+    
+    -- bottom edge if no X collisions or top collision, last possibility
+    else
+        
+        -- flip y velocity and reset position outside of brick
+        ball.dy = -ball.dy
+        ball.y = brick.y + 16
+    end
+
+    -- slightly scale the y velocity to speed up the game, capping at +- 150
+    if math.abs(ball.dy) < 150 then
+        ball.dy = ball.dy * 1.02
+    end
 end
