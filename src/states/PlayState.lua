@@ -23,7 +23,7 @@ PlayState = Class{__includes = BaseState}
 function PlayState:enter(params)
     self.paddle = params.paddle
     self.bricks = params.bricks
-    self.powerUp = PowerUp()
+    self.powerUp = PowerUp(1)
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
@@ -53,7 +53,7 @@ function PlayState:update(dt)
 
     -- update positions based on velocity
     self.paddle:update(dt)
-    self.paddle.size = changePaddleSize(self.score)
+    self.paddle.size = changePaddleSize(self.score, self.health)
     
     -- updating balls
     for key, ball in pairs(self.balls) do
@@ -67,17 +67,28 @@ function PlayState:update(dt)
             ball:giveVelocity()
     end
 
-    
+    if self.powerUp.ability == 1 and not self.powerUp.inPlay then
+        self.powerUp = PowerUp(2)
+    end
+
+    if self.powerUp.ability == 2 and not self.powerUp.inPlay then
+        for key, brick in pairs(self.bricks) do
+            brick.isLocked = false
+        end
+    end
+
+
     for key, ball in pairs(self.balls) do
         if ball:collides(self.powerUp) and self.powerUp.inPlay then
             brickCollision(ball, self.powerUp)
             self.powerUp:hit()
-            self.balls =  {
-                [1] = ball,
-                [2] = Ball(math.random(3)),
-                [3] = Ball(math.random(3))
-            }
-
+            if self.powerUp.ability == 1 then
+                self.balls =  {
+                    [1] = ball,
+                    [2] = Ball(math.random(3)),
+                    [3] = Ball(math.random(3))
+                }
+            end
             for key, ball in pairs(self.balls) do 
                 ball.x = self.powerUp.x
                 ball.y = self.powerUp.y
@@ -283,9 +294,9 @@ function brickCollision(ball, brick)
     end
 end
 
-function changePaddleSize(score)
-    size = 4 - math.floor(score / 1000)
-    size = math.max(1, size)
+function changePaddleSize(score, health)
+    size = 4 - math.floor(score / 2000)
+    size = math.min(4, math.max(1, size) + (3 - health))
     return size
 
 end

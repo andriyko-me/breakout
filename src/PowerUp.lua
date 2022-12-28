@@ -1,40 +1,13 @@
-paletteColors = {
-    -- blue
-    [1] = {
-        ['r'] = 99,
-        ['g'] = 155,
-        ['b'] = 255
-    },
-    -- green
-    [2] = {
-        ['r'] = 106,
-        ['g'] = 190,
-        ['b'] = 47
-    },
-    -- red
-    [3] = {
-        ['r'] = 217,
-        ['g'] = 87,
-        ['b'] = 99
-    },
-    -- purple
-    [4] = {
-        ['r'] = 215,
-        ['g'] = 123,
-        ['b'] = 186
-    },
-    -- gold
-    [5] = {
-        ['r'] = 251,
-        ['g'] = 242,
-        ['b'] = 54
-    }
-}
+
 
 PowerUp = Class{}
 
-function PowerUp:init()
-    self.powerUp = math.random(2)
+function PowerUp:init(ability)
+    self.abilities = {
+        [1] = 'balls',
+        [2] = 'key'
+    }
+    self.ability = ability
     self.x = math.random(16, VIRTUAL_WIDTH - 16)
     self.y = math.random (VIRTUAL_HEIGHT / 2, 2 * VIRTUAL_HEIGHT / 3)
     self.width = 16
@@ -50,7 +23,7 @@ end
 
 function PowerUp:render()
     if self.inPlay then
-        love.graphics.draw(gTextures['main'], gFrames['powerUps'][self.powerUp], self.x, self.y)
+        love.graphics.draw(gTextures['main'], gFrames['powerUps'][self.ability], self.x, self.y)
     end
 end
 

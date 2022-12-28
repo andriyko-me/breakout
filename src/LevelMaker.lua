@@ -113,11 +113,15 @@ function LevelMaker.createMap(level)
             end 
 
             table.insert(bricks, b)
+            
 
             -- Lua's version of the 'continue' statement
             ::continue::
         end
     end 
+
+    -- adding a locked Brick
+    bricks[math.random(#bricks)].isLocked = true
 
     -- in the event we didn't generate any bricks, try again
     if #bricks == 0 then
