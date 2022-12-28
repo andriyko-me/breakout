@@ -21,9 +21,9 @@ PlayState = Class{__includes = BaseState}
     states as we go from playing to serving.
 ]]
 function PlayState:enter(params)
+    
     self.paddle = params.paddle
     self.bricks = params.bricks
-    self.powerUp = PowerUp(1)
     self.health = params.health
     self.score = params.score
     self.highScores = params.highScores
@@ -31,6 +31,7 @@ function PlayState:enter(params)
         [1] = params.ball
     }
     self.level = params.level
+    self.powerUp = params.powerUp
 
     -- give ball random starting velocity
     
@@ -67,6 +68,7 @@ function PlayState:update(dt)
             ball:giveVelocity()
     end
 
+
     if self.powerUp.ability == 1 and not self.powerUp.inPlay then
         self.powerUp = PowerUp(2)
     end
@@ -82,21 +84,22 @@ function PlayState:update(dt)
         if ball:collides(self.powerUp) and self.powerUp.inPlay then
             brickCollision(ball, self.powerUp)
             self.powerUp:hit()
+            self.powerUp.inPlay = false
+            
             if self.powerUp.ability == 1 then
                 self.balls =  {
                     [1] = ball,
                     [2] = Ball(math.random(3)),
                     [3] = Ball(math.random(3))
                 }
-            end
-            for key, ball in pairs(self.balls) do 
-                ball.x = self.powerUp.x
-                ball.y = self.powerUp.y
-            end
-            
-            self.powerUp.inPlay = false
 
-            break
+                for key, ball in pairs(self.balls) do 
+                    ball.x = self.powerUp.x + key * 3
+                    ball.y = self.powerUp.y + key * 3
+                end
+
+            end
+        break
         end
     end
 
@@ -109,7 +112,9 @@ function PlayState:update(dt)
 
             brickCollision(ball, brick)
             -- add to score
-            self.score = self.score + (brick.tier * 200 + brick.color * 25)
+            if not brick.isLocked then
+                self.score = self.score + (brick.tier * 200 + brick.color * 25)
+            end
 
             -- trigger the brick's hit function, which removes it from play
             brick:hit()
@@ -149,7 +154,6 @@ end
             if #self.balls == 1 then
                 self.health = self.health - 1
             else
-                
                 table.remove(self.balls, key)
                 break
             end
@@ -167,7 +171,8 @@ end
                     health = self.health,
                     score = self.score,
                     highScores = self.highScores,
-                    level = self.level
+                    level = self.level,
+                    powerUp = self.powerUp
                 })
                 
             end
@@ -188,7 +193,7 @@ end
 end
 
 function PlayState:render()
-    -- render powerUp
+    -- render powerUp after 10 seconds
     self.powerUp:render()
     -- render bricks
     for k, brick in pairs(self.bricks) do

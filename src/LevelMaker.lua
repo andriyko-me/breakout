@@ -120,7 +120,7 @@ function LevelMaker.createMap(level)
         end
     end 
 
-    -- adding a locked Brick
+    
     bricks[math.random(#bricks)].isLocked = true
 
     -- in the event we didn't generate any bricks, try again
