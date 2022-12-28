@@ -53,14 +53,13 @@ function PlayState:update(dt)
 
     -- update positions based on velocity
     self.paddle:update(dt)
+    self.paddle.size = changePaddleSize(self.score)
     
-
-    -- checking balls
+    -- updating balls
     for key, ball in pairs(self.balls) do
         ball:update(dt)
 
         if ball:collides(self.paddle) then
-            -- call collides function
             paddleCollision(ball, self.paddle)
         end
 
@@ -74,7 +73,7 @@ function PlayState:update(dt)
             brickCollision(ball, self.powerUp)
             self.powerUp:hit()
             self.balls =  {
-                [1] = Ball(ball.skin),
+                [1] = ball,
                 [2] = Ball(math.random(3)),
                 [3] = Ball(math.random(3))
             }
@@ -282,4 +281,11 @@ function brickCollision(ball, brick)
     if math.abs(ball.dy) < 150 then
         ball.dy = ball.dy * 1.02
     end
+end
+
+function changePaddleSize(score)
+    size = 4 - math.floor(score / 1000)
+    size = math.max(1, size)
+    return size
+
 end

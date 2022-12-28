@@ -28,11 +28,11 @@ function Paddle:init(skin)
 
     -- start us off with no velocity
     self.dx = 0
-    self.size = 1
+    self.size = 4
 
     -- starting dimensions
-    self.width = 32*self.size
-    self.height = 16*self.size
+    self.width = 32
+    self.height = 16
 
     -- the skin only has the effect of changing our color, used to offset us
     -- into the gPaddleSkins table later
@@ -52,6 +52,8 @@ function Paddle:update(dt)
     else
         self.dx = 0
     end
+
+    self.width = 32 * self.size
 
     -- math.max here ensures that we're the greater of 0 or the player's
     -- current calculated Y position when pressing up so that we don't
